@@ -9,6 +9,7 @@ Modeling = "8c260c69-540f-4492-b9b0-29f6bf1aa2df"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 
 [compat]
+Polynomials = "3"
 julia = "1"
 
 [extras]
