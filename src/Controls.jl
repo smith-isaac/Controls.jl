@@ -7,12 +7,12 @@ using Polynomials
 using Modeling
 
 mutable struct Controller
-    C::Matrix{Float64}
-    a::Matrix{Float64}
-    A::Matrix{Float64}
-    α::Matrix{Float64}
-    K::Matrix{Float64}
-    kr::Float64
+    C::Matrix{<:Real}
+    a::Matrix{<:Real}
+    A::Matrix{<:Real}
+    α::Matrix{<:Real}
+    K::Matrix{<:Real}
+    kr::Real
 
     function get_C(ss::StateSpace)
 	C = zeros(size(ss.A)...)
@@ -25,11 +25,11 @@ mutable struct Controller
 	return C
     end
 
-    function get_a(A::Matrix{Float64})
+    function get_a(A::Matrix{<:Real})
 	return Matrix(reverse(coeffs(fromroots(A)))[2:end]')
     end
 
-    function get_A(a::Matrix{Float64})
+    function get_A(a::Matrix{<:Real})
 	A = Matrix(1.0I, length(a), length(a))
 	for i in 1:(length(a) - 1)
 	    for j in (i + 1):length(a)
@@ -47,20 +47,20 @@ mutable struct Controller
 	return this
     end
 
-    function Controller(ss::StateSpace, poles::Vector)
+    function Controller(ss::StateSpace, poles::Vector{<:Number})
 	this = Controller(ss)
 	set_poles!(this, ss, poles)
 	return this
     end
 end
 
-function set_poles!(c::Controller, ss::StateSpace, poles::Vector{Float64})
+function set_poles!(c::Controller, ss::StateSpace, poles::Vector{<:Real})
     c.α = Matrix(reverse(coeffs(fromroots(poles)))[2:end]')
     c.K = (c.α - c.a) * inv(c.A) * inv(c.C)
     c.kr = -1 / (ss.C * inv(ss.A - ss.B * c.K) * ss.B)[1]
 end
 
-function set_poles!(c::Controller, ss::StateSpace, poles::Vector{ComplexF64})
+function set_poles!(c::Controller, ss::StateSpace, poles::Vector{Complex})
     Δ = coeffs(fromroots(poles))
     if all(isreal, Δ)
 	c.α = Matrix(reverse(Δ)[2:end]')
@@ -71,7 +71,7 @@ function set_poles!(c::Controller, ss::StateSpace, poles::Vector{ComplexF64})
     end
 end
 
-function get_u(c::Controller, x::Vector{Float64}, r::Float64)
+function get_u(c::Controller, x::Vector{<:Real}, r::Real)
     return c.kr * r - (c.K * x)[1]
 end
 
